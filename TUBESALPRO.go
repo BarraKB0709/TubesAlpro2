@@ -60,5 +60,5 @@ func hapusWarga(tab *[NMAX]Warga, n *int, id int) {
 	for i = 0; i < *n && indexHapus == -1; i++ {
 		if tab[i].id == id {
 			indexHapus = i 
-	}d
+	}
 }
