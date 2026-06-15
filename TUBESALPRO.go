@@ -2,42 +2,57 @@ package main
 
 import "fmt"
 
-const MAX = 100
+const NMAX int = 100
 
-type Transaksi struct {
+type Setoran struct {
 	tanggal string
-	berat   float64
+	berat   int
 }
-
-type Warga struct {
-	id          int
-	nama        string
-	jenisSampah string
-	log         [MAX]Transaksi
-	nLog        int
-	totalBerat  float64
-}
-
-type DataWarga struct {
-	warga  [MAX]Warga
+type dataWarga struct {
+	warga  [NMAX]Warga
 	nWarga int
 }
 
+type Warga struct {
+	nama       string
+	id         int
+	jumSampah  int
+	jSampah    string
+	log        [NMAX]Setoran
+	nLog       int
+	totalBerat int
+}
+
+
+var tabWarga [NMAX]Warga
+
 func main() {
-	var D DataWarga
+	var ubah, hapus, tambah string
+	var n int
+	var idTarget int
+	var cari, cariid, sortingMenurun, sortingMenaik string
+	var catat, statistik string
+
 	var pilihan int
 	selesai := false
 
+	// input awal
+	fmt.Print("Jumlah warga awal: ")
+	fmt.Scan(&n)
+	if n > 0 {
+		inputData(&tabWarga, n)
+	}
+	// startup
 	for !selesai {
 		fmt.Println("\n=== Aplikasi Waste-Track ===")
 		fmt.Println("1. Tambah Data Warga")
 		fmt.Println("2. Ubah Data Warga")
 		fmt.Println("3. Hapus Data Warga")
-		fmt.Println("4. Catat Setoran Sampah (Mingguan)")
-		fmt.Println("5. Cari Warga berdasarkan Nama (Sequential Search)")
-		fmt.Println("6. Cari Warga berdasarkan ID (Binary Search)")
-		fmt.Println("7. Urutkan Warga berdasarkan Berat (Selection Sort)")
-		fmt.Println("8. Urutkan Warga berdasarkan Berat (Insertion Sort)")
+		fmt.Println("4. Pecarian nama berdasarkan nama (Sequential Search)")
+		fmt.Println("5. Pecarian nama berdasarkan ID (Binary Search)")
+		fmt.Println("6. Catat Setoran Sampah (Mingguan)")
+		fmt.Println("7. Urutkan Warga berdasarkan Berat Menurun(Selection Sort)")
+		fmt.Println("8. Urutkan Warga berdasarkan Berat Menaik (Insertion Sort)")
 		fmt.Println("9. Statistik Total Akumulasi Sampah")
 		fmt.Println("10. Tampilkan Semua Data")
 		fmt.Println("0. Keluar")
@@ -45,29 +60,73 @@ func main() {
 		fmt.Scan(&pilihan)
 
 		if pilihan == 1 {
-			tambahWarga(&D)
+			fmt.Print("\nApakah anda ingin menambah data? (Ketik 'Ya'/'Tidak'): ")
+			fmt.Scan(&tambah)
+			if tambah == "Ya" {
+				tambahWarga(&tabWarga, &n)
+			}
+
 		} else if pilihan == 2 {
-			ubahWarga(&D)
+			fmt.Print("Apakah anda ingin mengubah data? (Ketik 'Ya'/'Tidak'): ")
+			fmt.Scan(&ubah)
+			if ubah == "Ya" {
+				fmt.Print("Masukkan ID Warga yang ingin diubah: ")
+				fmt.Scan(&idTarget)
+				ubahWarga(&tabWarga, n, idTarget)
+			}
 		} else if pilihan == 3 {
-			hapusWarga(&D)
+			fmt.Print("Apakah anda ingin menghapus data? (Ketik 'Ya'/'Tidak'): ")
+			fmt.Scan(&hapus)
+			if hapus == "Ya" {
+				fmt.Print("Masukkan ID yang ingin dihapus: ")
+				fmt.Scan(&idTarget)
+				hapusWarga(&tabWarga, &n, idTarget)
+			}
 		} else if pilihan == 4 {
-			catatSetoran(&D)
+			fmt.Print("Apakah anda ingin melakukan pencarian nama? (Ketik 'Ya'/'Tidak'): ")
+			fmt.Scan(&cari)
+			if cari == "Ya" {
+				cariNama(tabWarga, n)
+			}
 		} else if pilihan == 5 {
-			cariNama(D)
+			fmt.Print("Apakah anda ingin melakukan pencarian ID? (Ketik 'Ya'/'Tidak'): ")
+			fmt.Scan(&cariid)
+			if cariid == "Ya" {
+				fmt.Print("Masukkan ID Warga yang dicari: ")
+				fmt.Scan(&idTarget)
+				cariID(&tabWarga, n, idTarget) 
+			}
 		} else if pilihan == 6 {
-			cariID(&D) 
+			fmt.Print("Apakah anda ingin mencatat setoran mingguan? (Ketik 'Ya'/'Tidak'): ")
+			fmt.Scan(&catat)
+			if catat == "Ya" {
+				catatSetoran(&tabWarga, n)
+			}
 		} else if pilihan == 7 {
-			selectionSortBerat(&D)
-			tampilkanData(D)
+			fmt.Print("Apakah anda ingin melakukan Pengurutan Menurun/Selection Sort? (Ketik 'Ya'/'Tidak'): ")
+			fmt.Scan(&sortingMenurun)
+			if sortingMenurun == "Ya" {
+				selectionSortBerat(&tabWarga, n)
+				tampilkanData(tabWarga, n)
+			}
 		} else if pilihan == 8 {
-			insertionSortBerat(&D)
-			tampilkanData(D)
+			fmt.Print("Apakah anda ingin melakukan Pengurutan Menaik/Insertion Sort? (Ketik 'Ya'/'Tidak'): ")
+			fmt.Scan(&sortingMenaik)
+			if sortingMenaik == "Ya" {
+				insertionSortBerat(&tabWarga, n)
+				tampilkanData(tabWarga, n)
+			}
 		} else if pilihan == 9 {
-			statistikMingguan(D)
+			fmt.Print("Apakah anda ingin melihat Statistik Mingguan? (Ketik 'Ya'/'Tidak'): ")
+			fmt.Scan(&statistik)
+			if statistik == "Ya" {
+				statistikMingguan(tabWarga, n)
+			}
+
 		} else if pilihan == 10 {
-			tampilkanData(D)
+			tampilkanData(tabWarga, n)
 		} else if pilihan == 0 {
-			fmt.Println("Terima kasih telah menggunakan Waste-Track!")
+			fmt.Println("Program Selesai")
 			selesai = true
 		} else {
 			fmt.Println("Pilihan tidak valid.")
@@ -75,218 +134,265 @@ func main() {
 	}
 }
 
-func tambahWarga(D *DataWarga) {
-	if D.nWarga < MAX {
-		fmt.Println("\n-- Tambah Data Warga --")
-		fmt.Print("Masukkan ID: ")
-		fmt.Scan(&D.warga[D.nWarga].id)
-		fmt.Print("Masukkan Nama: ")
-		fmt.Scan(&D.warga[D.nWarga].nama)
-		fmt.Print("Masukkan Jenis Sampah Utama: ")
-		fmt.Scan(&D.warga[D.nWarga].jenisSampah)
-		D.nWarga++
-		fmt.Println("Data berhasil ditambahkan!")
-	} else {
-		fmt.Println("Kapasitas penyimpanan penuh!")
+
+func inputData(tab *[NMAX]Warga, n int) {
+	var i int
+	for i = 0; i < n; i++ {
+		fmt.Print("Masukkan Data Warga (Nama ID Jumlah-Sampah Jenis-Sampah): ")
+		fmt.Scan(&tab[i].nama, &tab[i].id, &tab[i].jumSampah, &tab[i].jSampah)
+
 	}
 }
 
-func ubahWarga(D *DataWarga) {
-	var idCari int
-	fmt.Print("\nMasukkan ID Warga yang ingin diubah: ")
-	fmt.Scan(&idCari)
+func ubahWarga(tab *[NMAX]Warga, n int, id int) {
+	var i int
+	var ketemu bool
+	var x string
 
-	idx := -1
-	
-	for i := 0; i < D.nWarga && idx == -1; i++ {
-		if D.warga[i].id == idCari {
-			idx = i
-		}
-	}
+	ketemu = false
 
-	if idx != -1 {
-		fmt.Print("Masukkan Nama Baru: ")
-		fmt.Scan(&D.warga[idx].nama)
-		fmt.Print("Masukkan Jenis Sampah Baru: ")
-		fmt.Scan(&D.warga[idx].jenisSampah)
-		fmt.Println("Data berhasil diubah!")
-	} else {
-		fmt.Println("Data warga tidak ditemukan.")
-	}
-}
+	for i = 0; i < n && !ketemu; i++ {
+		if tab[i].id == id {
+			ketemu = true
 
-func hapusWarga(D *DataWarga) {
-	var idCari int
-	fmt.Print("\nMasukkan ID Warga yang ingin dihapus: ")
-	fmt.Scan(&idCari)
+			fmt.Print("Apa yang ingin diubah? (Ketik 'Nama'/'ID'/'Berat'/'Jenis Sampah'/'Jumlah Sampah'): ")
+			fmt.Scan(&x)
 
-	idx := -1
-	for i := 0; i < D.nWarga && idx == -1; i++ {
-		if D.warga[i].id == idCari {
-			idx = i
-		}
-	}
-
-	if idx != -1 {
-		
-		for i := idx; i < D.nWarga-1; i++ {
-			D.warga[i] = D.warga[i+1]
-		}
-		D.nWarga--
-		fmt.Println("Data berhasil dihapus!")
-	} else {
-		fmt.Println("Data warga tidak ditemukan.")
-	}
-}
-
-
-func catatSetoran(D *DataWarga) {
-	var idCari int
-	fmt.Print("\nMasukkan ID Warga yang menyetor: ")
-	fmt.Scan(&idCari)
-
-	idx := -1
-	for i := 0; i < D.nWarga && idx == -1; i++ {
-		if D.warga[i].id == idCari {
-			idx = i
-		}
-	}
-
-	if idx != -1 {
-		w := &D.warga[idx]
-		if w.nLog < MAX {
-			fmt.Print("Masukkan Tanggal (cth: 12-05-2024): ")
-			fmt.Scan(&w.log[w.nLog].tanggal)
-			fmt.Print("Masukkan Berat Sampah (kg): ")
-			fmt.Scan(&w.log[w.nLog].berat)
-
-			w.totalBerat += w.log[w.nLog].berat
-			w.nLog++
-			fmt.Println("Setoran berhasil dicatat!")
-		} else {
-			fmt.Println("Log setoran untuk warga ini sudah penuh!")
-		}
-	} else {
-		fmt.Println("Data warga tidak ditemukan.")
-	}
-}
-
-
-func cariNama(D DataWarga) {
-	var namaCari string
-	fmt.Print("\nMasukkan Nama Warga yang dicari: ")
-	fmt.Scan(&namaCari)
-
-	ditemukan := false
-	for i := 0; i < D.nWarga && !ditemukan; i++ {
-		if D.warga[i].nama == namaCari {
-			fmt.Printf("Ditemukan: ID: %d | Nama: %s | Jenis: %s | Total Berat: %.2f kg\n",
-				D.warga[i].id, D.warga[i].nama, D.warga[i].jenisSampah, D.warga[i].totalBerat)
-			ditemukan = true
-		}
-	}
-
-	if !ditemukan {
-		fmt.Println("Warga dengan nama tersebut tidak ditemukan.")
-	}
-}
-
-
-func sortIDAsc(D *DataWarga) {
-	for i := 1; i < D.nWarga; i++ {
-		key := D.warga[i]
-		j := i - 1
-		for j >= 0 && D.warga[j].id > key.id {
-			D.warga[j+1] = D.warga[j]
-			j--
-		}
-		D.warga[j+1] = key
-	}
-}
-
-func cariID(D *DataWarga) {
-
-	sortIDAsc(D)
-
-	var idCari int
-	fmt.Print("\nMasukkan ID Warga yang dicari: ")
-	fmt.Scan(&idCari)
-
-	kiri := 0
-	kanan := D.nWarga - 1
-	idxDitemukan := -1
-
-	
-	for kiri <= kanan && idxDitemukan == -1 {
-		tengah := (kiri + kanan) / 2
-		if D.warga[tengah].id == idCari {
-			idxDitemukan = tengah
-		} else if D.warga[tengah].id < idCari {
-			kiri = tengah + 1
-		} else {
-			kanan = tengah - 1
-		}
-	}
-
-	if idxDitemukan != -1 {
-		w := D.warga[idxDitemukan]
-		fmt.Printf("Ditemukan: ID: %d | Nama: %s | Jenis: %s | Total Berat: %.2f kg\n",
-			w.id, w.nama, w.jenisSampah, w.totalBerat)
-	} else {
-		fmt.Println("Warga dengan ID tersebut tidak ditemukan.")
-	}
-}
-
-func selectionSortBerat(D *DataWarga) {
-	for i := 0; i < D.nWarga-1; i++ {
-		idxMaks := i
-		for j := i + 1; j < D.nWarga; j++ {
-			if D.warga[j].totalBerat > D.warga[idxMaks].totalBerat {
-				idxMaks = j
+			if x == "Nama" {
+				fmt.Print("Masukkan Nama Baru: ")
+				fmt.Scan(&tab[i].nama)
+			} else if x == "ID" {
+				fmt.Print("Masukkan ID Baru: ")
+				fmt.Scan(&tab[i].id)
+			} else if x == "Berat" {
+				fmt.Print("Masukkan Berat Baru: ")
+				fmt.Scan(&tab[i].totalBerat)
+			} else if x == "Jenis Sampah" {
+				fmt.Print("Masukkan Jenis Sampah Baru: ")
+				fmt.Scan(&tab[i].jSampah)
+			} else if x == "Jumlah Sampah" {
+				fmt.Print("Masukkan Jumlah Sampah Baru: ")
+				fmt.Scan(&tab[i].jumSampah)
 			}
 		}
-		temp := D.warga[i]
-		D.warga[i] = D.warga[idxMaks]
-		D.warga[idxMaks] = temp
 	}
-	fmt.Println("\nBerhasil diurutkan berdasarkan berat (Selection Sort).")
-}
 
-
-func insertionSortBerat(D *DataWarga) {
-	for i := 1; i < D.nWarga; i++ {
-		key := D.warga[i]
-		j := i - 1
-	
-		for j >= 0 && D.warga[j].totalBerat < key.totalBerat {
-			D.warga[j+1] = D.warga[j]
-			j--
-		}
-		D.warga[j+1] = key
-	}
-	fmt.Println("\nBerhasil diurutkan berdasarkan berat (Insertion Sort).")
-}
-
-
-func statistikMingguan(D DataWarga) {
-	var totalSemua float64 = 0
-	for i := 0; i < D.nWarga; i++ {
-		totalSemua += D.warga[i].totalBerat
-	}
-	fmt.Printf("\n--- Statistik Mingguan ---\n")
-	fmt.Printf("Total Warga yang menyetor  : %d orang\n", D.nWarga)
-	fmt.Printf("Total Sampah Terkumpul     : %.2f kg\n", totalSemua)
-	fmt.Println("--------------------------")
-}
-
-func tampilkanData(D DataWarga) {
-	fmt.Println("\n--- Data Seluruh Warga ---")
-	if D.nWarga == 0 {
-		fmt.Println("Belum ada data warga.")
+	if ketemu {
+		fmt.Println("Data berhasil diubah!")
 	} else {
-		for i := 0; i < D.nWarga; i++ {
-			fmt.Printf("%d. ID: %d | Nama: %s | Jenis Sampah: %s | Total Setoran: %.2f kg\n",
-				i+1, D.warga[i].id, D.warga[i].nama, D.warga[i].jenisSampah, D.warga[i].totalBerat)
+		fmt.Println("Data tidak ditemukan.")
+	}
+}
+
+func hapusWarga(tab *[NMAX]Warga, n *int, id int) {
+	var i, idxHapus int
+	var ketemu bool
+
+	ketemu = false
+	idxHapus = -1
+
+	for i = 0; i < *n && !ketemu; i++ {
+		if tab[i].id == id {
+			idxHapus = i
+			ketemu = true
 		}
 	}
+
+	if ketemu {
+		for i = idxHapus; i < *n-1; i++ {
+			tab[i] = tab[i+1]
+		}
+		*n = *n - 1
+		fmt.Println("Data berhasil dihapus!")
+	} else {
+		fmt.Println("Data tidak ditemukan.")
+	}
+}
+
+func tambahWarga(tab *[NMAX]Warga, n *int) {
+	if *n < NMAX {
+		fmt.Print("Masukkan Data Baru (Nama ID Jumlah-Sampah Jenis-Sampah): ")
+		fmt.Scan(&tab[*n].nama, &tab[*n].id, &tab[*n].jumSampah, &tab[*n].jSampah)
+
+		*n = *n + 1
+		fmt.Println("Data berhasil ditambahkan!")
+	} else {
+		fmt.Println("Kapasitas data sudah penuh!")
+	}
+}
+
+func cariNama(tab [NMAX]Warga, n int) {
+	var i int
+	var ketemu bool
+	var key string
+
+	ketemu = false
+	
+	fmt.Print("Nama Dicari: ")
+	fmt.Scan(&key)
+
+	for i = 0; i < n && !ketemu; i++ {
+		if tab[i].nama == key {
+			ketemu = true
+			fmt.Println("\nData Ditemukan!")
+			fmt.Println("ID:", tab[i].id, ", Nama:", tab[i].nama, ", Berat:", tab[i].totalBerat, " ,Jumlah Sampah", tab[i].jumSampah, ", Jenis Sampah:", tab[i].jSampah)
+		}
+	}
+
+	if !ketemu {
+		fmt.Println("Data tidak ditemukan.")
+	}
+}
+
+func cariID(tab *[NMAX]Warga, n int, key int) {
+	var left, right, mid int
+
+	
+	sortingID(tab, n)
+
+	left = 0
+	right = n - 1
+	mid = (left + right) / 2
+
+	for left <= right && tab[mid].id != key {
+		if key < tab[mid].id {
+			right = mid - 1
+		} else {
+			left = mid + 1
+		}
+		mid = (left + right) / 2
+	}
+
+	if mid >= 0 && tab[mid].id == key {
+		fmt.Println("\nData Ditemukan!")
+		fmt.Println("ID:", tab[mid].id, ", Nama:", tab[mid].nama, ", Berat:", tab[mid].totalBerat, ", Jumlah Sampah:", tab[mid].jumSampah, ", Jenis Sampah:", tab[mid].jSampah)
+
+	} else {
+		fmt.Println("Data tidak ditemukan.")
+	}
+}
+
+func sortingID(tab *[NMAX]Warga, n int) {
+	var i, x int
+	var key Warga
+
+	for i = 1; i < n; i++ {
+		key = tab[i]
+		x = i - 1
+
+		for x >= 0 && tab[x].id > key.id {
+			tab[x+1] = tab[x]
+			x = x - 1
+		}
+		tab[x+1] = key
+	}
+}
+
+
+func selectionSortBerat(tab *[NMAX]Warga, n int) {
+	var i, x, idxMaks int
+	var temp Warga
+
+	for i = 0; i < n-1; i++ {
+		idxMaks = i
+		for x = i + 1; x < n; x++ {
+			
+			if tab[x].totalBerat > tab[idxMaks].totalBerat {
+				idxMaks = x
+			}
+		}
+		temp = tab[i]
+		tab[i] = tab[idxMaks]
+		tab[idxMaks] = temp
+	}
+	fmt.Println("Menampilkan berat terurut menurun")
+}
+
+
+func insertionSortBerat(tab *[NMAX]Warga, n int	) {
+	var i, x int
+	var key Warga
+	for i = 1; i < n; i++ {
+		key = tab[i]
+		x = i - 1
+
+		
+		for x >= 0 && tab[x].totalBerat > key.totalBerat {
+			tab[x+1] = tab[x]
+			x = x - 1
+		}
+		tab[x+1] = key
+	}
+	fmt.Println("Menampilkan berat menaik")
+}
+
+func catatSetoran(tab *[NMAX]Warga, n int) {
+	var idTarget, indexWarga, i int
+	var ketemu bool
+
+	fmt.Print("Masukkan ID Warga yang menyetor: ")
+	fmt.Scan(&idTarget)
+
+	ketemu = false
+	indexWarga = -1
+	for i = 0; i < n && !ketemu; i++ {
+		if tab[i].id == idTarget {
+			ketemu = true
+			indexWarga = i
+		}
+	}
+
+	if ketemu {
+		if tab[indexWarga].nLog < NMAX {
+			fmt.Print("Masukkan Tanggal Setoran (cth: 07-09-2026): ")
+			fmt.Scan(&tab[indexWarga].log[tab[indexWarga].nLog].tanggal)
+
+			fmt.Print("Masukkan Berat Setoran: ")
+			fmt.Scan(&tab[indexWarga].log[tab[indexWarga].nLog].berat)
+
+			tab[indexWarga].totalBerat = tab[indexWarga].totalBerat + tab[indexWarga].log[tab[indexWarga].nLog].berat
+			tab[indexWarga].nLog = tab[indexWarga].nLog + 1
+
+			fmt.Println("Setoran berhasil dicatat!")
+		} else {
+			fmt.Println("Riwayat setoran sudah penuh!")
+		}
+	} else {
+		fmt.Println("Data warga tidak ditemukan.")
+	}
+}
+
+
+func statistikMingguan(tab [NMAX]Warga, n int) {
+	var cariTanggal string
+	var i, j, total int
+
+	fmt.Print("Masukkan Tanggal/Minggu yang ingin dihitung: ")
+	fmt.Scan(&cariTanggal)
+
+	total = 0
+	for i = 0; i < n; i++ {
+		for j = 0; j < tab[i].nLog; j++ {
+			if tab[i].log[j].tanggal == cariTanggal {
+				total = total + tab[i].log[j].berat
+			}
+		}
+	}
+	fmt.Printf("\n--- Statistik ---\n")
+	fmt.Printf("Total Sampah Terkumpul pada %s adalah %d kg\n", cariTanggal, total)
+}
+
+
+func tampilkanData(tab [NMAX]Warga, n int) {
+	var i int
+	fmt.Println("\n--- Data Seluruh Warga ---")
+	if n == 0 {
+		fmt.Println("Data Kosong.")
+	} else {
+		for i = 0; i < n; i++ {
+			fmt.Printf("ID: %d | Nama: %s | Total Berat: %d kg | Jenis: %s | Jumlah: %d\n",
+				tab[i].id, tab[i].nama, tab[i].totalBerat, tab[i].jSampah, tab[i].jumSampah)
+		}
+	}
+	fmt.Println("--------------------------")
 }
