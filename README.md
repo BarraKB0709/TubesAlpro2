@@ -1,6 +1,7 @@
-﻿# Tubes Alpro 2
+﻿# Tugas Besar Alpro 2
+ #  Aplikasi Manajemen Pengumpulan Sampah Lingkungan (Waste- Track) 
 # IF - 49 - 08 
- Aplikasi Manajemen Pengumpulan Sampah Lingkungan (Waste- Track) 
 # Kelompok 10:
+ Barra Kusuma Bakti / 103012500223,
+ 
  Tengku Kanaya Naiyira / 103012530004
- Barra Kusuma Bakti / 103012500223
